@@ -1,4 +1,4 @@
-# What-to-Cook 🍳
+# What-to-Cook
 
 **What-to-Cook** is a sleek, modern personal food journal and menu planner built with Expo and React Native. Designed for food enthusiasts and home cooks, it allows you to document your culinary creations, categorize them, and quickly find inspiration for your next meal.
 
