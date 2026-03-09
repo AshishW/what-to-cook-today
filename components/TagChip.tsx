@@ -1,4 +1,5 @@
 import { AppColors, getTagColor } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
@@ -11,7 +12,8 @@ interface TagChipProps {
 }
 
 export function TagChip({ label, index = 0, selected, onPress, size = 'medium' }: TagChipProps) {
-    const bgColor = selected ? AppColors.primary : getTagColor(index);
+    const primary = useThemeColor({}, 'primary');
+    const bgColor = selected ? primary : getTagColor(index);
     const isSmall = size === 'small';
 
     return (
@@ -20,7 +22,7 @@ export function TagChip({ label, index = 0, selected, onPress, size = 'medium' }
             style={[
                 styles.chip,
                 {
-                    backgroundColor: selected ? bgColor : bgColor + '30',
+                    backgroundColor: selected ? bgColor : bgColor + '20',
                     borderColor: bgColor,
                     paddingHorizontal: isSmall ? 8 : 12,
                     paddingVertical: isSmall ? 4 : 6,

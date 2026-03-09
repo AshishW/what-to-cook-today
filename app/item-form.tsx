@@ -1,7 +1,9 @@
 import { ImageUploader } from '@/components/ImageUploader';
 import { TagChip } from '@/components/TagChip';
+import { ThemedText } from '@/components/themed-text';
 import { getCategoryTranslation, t } from '@/constants/i18n';
 import { AppColors } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { useData } from '@/store/data-store';
 import { CATEGORIES, Category } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,7 +16,6 @@ import {
     Pressable,
     ScrollView,
     StyleSheet,
-    Text,
     TextInput,
     View,
 } from 'react-native';
@@ -36,6 +37,12 @@ export default function ItemFormScreen() {
     const [categories, setCategories] = useState<Category[]>(
         existingItem?.categories || [id ? 'Dinner' : (useLocalSearchParams().category as Category) || 'Dinner']
     );
+
+    const backgroundColor = useThemeColor({}, 'background');
+    const cardColor = useThemeColor({}, 'card');
+    const border = useThemeColor({}, 'border');
+    const textColor = useThemeColor({}, 'text');
+    const primary = useThemeColor({}, 'primary');
 
     const toggleCategory = (cat: Category) => {
         if (categories.includes(cat)) {
@@ -90,13 +97,13 @@ export default function ItemFormScreen() {
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            <SafeAreaView style={styles.container} edges={['top']}>
+            <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top']}>
                 {/* Header */}
-                <View style={styles.header}>
+                <View style={[styles.header, { backgroundColor: cardColor, borderBottomColor: border }]}>
                     <Pressable onPress={() => router.back()} style={styles.backBtn}>
-                        <Ionicons name="arrow-back" size={22} color={AppColors.text} />
+                        <Ionicons name="arrow-back" size={22} color={textColor} />
                     </Pressable>
-                    <Text style={styles.headerTitle}>{screenTitle}</Text>
+                    <ThemedText style={styles.headerTitle}>{screenTitle}</ThemedText>
                     <View style={{ width: 40 }} />
                 </View>
 
@@ -108,9 +115,9 @@ export default function ItemFormScreen() {
                     <ImageUploader imageUri={imageUri} onImageSelected={setImageUri} />
 
                     {/* Title */}
-                    <Text style={styles.label}>{t('title', language)}</Text>
+                    <ThemedText style={styles.label}>{t('title', language)}</ThemedText>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: cardColor, borderColor: border, color: textColor }]}
                         placeholder={t('titlePlaceholder', language)}
                         placeholderTextColor={AppColors.textMuted}
                         value={title}
@@ -118,9 +125,9 @@ export default function ItemFormScreen() {
                     />
 
                     {/* Description */}
-                    <Text style={styles.label}>{t('description', language)}</Text>
+                    <ThemedText style={styles.label}>{t('description', language)}</ThemedText>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, { backgroundColor: cardColor, borderColor: border, color: textColor }]}
                         placeholder={t('descriptionPlaceholder', language)}
                         placeholderTextColor={AppColors.textMuted}
                         value={description}
@@ -131,7 +138,7 @@ export default function ItemFormScreen() {
                     />
 
                     {/* Category */}
-                    <Text style={styles.label}>{t('category', language)}</Text>
+                    <ThemedText style={styles.label}>{t('category', language)}</ThemedText>
                     <View style={styles.categoryRow}>
                         {CATEGORIES.map(cat => {
                             const isActive = categories.includes(cat);
@@ -141,27 +148,28 @@ export default function ItemFormScreen() {
                                     onPress={() => toggleCategory(cat)}
                                     style={[
                                         styles.categoryPill,
-                                        isActive && styles.categoryPillActive,
+                                        { borderColor: border, backgroundColor: cardColor },
+                                        isActive && [styles.categoryPillActive, { backgroundColor: primary, borderColor: primary }],
                                     ]}
                                 >
-                                    <Text
+                                    <ThemedText
                                         style={[
                                             styles.categoryPillText,
                                             isActive && styles.categoryPillTextActive,
                                         ]}
                                     >
                                         {getCategoryTranslation(cat, language)}
-                                    </Text>
+                                    </ThemedText>
                                 </Pressable>
                             );
                         })}
                     </View>
 
                     {/* Tags */}
-                    <Text style={styles.label}>{t('tags', language)}</Text>
+                    <ThemedText style={styles.label}>{t('tags', language)}</ThemedText>
                     <View style={styles.tagInputRow}>
                         <TextInput
-                            style={styles.tagInput}
+                            style={[styles.tagInput, { backgroundColor: cardColor, borderColor: border, color: textColor }]}
                             placeholder={t('tagPlaceholder', language)}
                             placeholderTextColor={AppColors.textMuted}
                             value={tagInput}
@@ -169,7 +177,7 @@ export default function ItemFormScreen() {
                             onSubmitEditing={handleAddTag}
                             returnKeyType="done"
                         />
-                        <Pressable style={styles.addTagBtn} onPress={handleAddTag}>
+                        <Pressable style={[styles.addTagBtn, { backgroundColor: primary }]} onPress={handleAddTag}>
                             <Ionicons name="add" size={20} color={AppColors.white} />
                         </Pressable>
                     </View>
@@ -185,11 +193,11 @@ export default function ItemFormScreen() {
 
                     {/* Action Buttons */}
                     <View style={styles.actions}>
-                        <Pressable style={styles.saveButton} onPress={handleSave}>
-                            <Text style={styles.saveButtonText}>{t('save', language)}</Text>
+                        <Pressable style={[styles.saveButton, { backgroundColor: primary }]} onPress={handleSave}>
+                            <ThemedText style={styles.saveButtonText}>{t('save', language)}</ThemedText>
                         </Pressable>
-                        <Pressable style={styles.cancelButton} onPress={() => router.back()}>
-                            <Text style={styles.cancelButtonText}>{t('cancel', language)}</Text>
+                        <Pressable style={[styles.cancelButton, { backgroundColor: border }]} onPress={() => router.back()}>
+                            <ThemedText style={styles.cancelButtonText}>{t('cancel', language)}</ThemedText>
                         </Pressable>
                     </View>
                 </ScrollView>
@@ -201,7 +209,6 @@ export default function ItemFormScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: AppColors.background,
     },
     header: {
         flexDirection: 'row',
@@ -210,8 +217,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: AppColors.border,
-        backgroundColor: AppColors.white,
     },
     backBtn: {
         width: 40,
@@ -222,7 +227,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: AppColors.text,
     },
     content: {
         padding: 20,
@@ -231,21 +235,18 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 13,
         fontWeight: '700',
-        color: AppColors.textMuted,
         textTransform: 'uppercase',
         letterSpacing: 1,
         marginBottom: 8,
         marginTop: 8,
+        opacity: 0.6,
     },
     input: {
-        backgroundColor: AppColors.white,
         borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 14,
         fontSize: 15,
-        color: AppColors.text,
         borderWidth: 1,
-        borderColor: AppColors.border,
         marginBottom: 8,
     },
     textArea: {
@@ -262,21 +263,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         borderRadius: 20,
-        backgroundColor: AppColors.white,
         borderWidth: 1.5,
-        borderColor: AppColors.border,
     },
     categoryPillActive: {
-        backgroundColor: AppColors.primary,
-        borderColor: AppColors.primary,
+        // Colors applied dynamically
     },
     categoryPillText: {
         fontSize: 13,
         fontWeight: '600',
-        color: AppColors.textLight,
+        opacity: 0.8,
     },
     categoryPillTextActive: {
         color: AppColors.white,
+        opacity: 1,
     },
     tagInputRow: {
         flexDirection: 'row',
@@ -285,20 +284,16 @@ const styles = StyleSheet.create({
     },
     tagInput: {
         flex: 1,
-        backgroundColor: AppColors.white,
         borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 12,
         fontSize: 15,
-        color: AppColors.text,
         borderWidth: 1,
-        borderColor: AppColors.border,
     },
     addTagBtn: {
         width: 46,
         height: 46,
         borderRadius: 14,
-        backgroundColor: AppColors.primary,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -314,7 +309,6 @@ const styles = StyleSheet.create({
     },
     saveButton: {
         flex: 1,
-        backgroundColor: AppColors.primary,
         paddingVertical: 16,
         borderRadius: 14,
         alignItems: 'center',
@@ -326,7 +320,6 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
         flex: 1,
-        backgroundColor: AppColors.border,
         paddingVertical: 16,
         borderRadius: 14,
         alignItems: 'center',
@@ -334,6 +327,6 @@ const styles = StyleSheet.create({
     cancelButtonText: {
         fontSize: 16,
         fontWeight: '700',
-        color: AppColors.textLight,
+        opacity: 0.8,
     },
 });

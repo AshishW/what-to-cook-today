@@ -1,12 +1,14 @@
 import { CategorySection } from '@/components/CategorySection';
+import { ThemedText } from '@/components/themed-text';
 import { t } from '@/constants/i18n';
 import { AppColors } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { useData } from '@/store/data-store';
 import { CATEGORIES, FoodItem } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +16,9 @@ export default function FeedScreen() {
   const router = useRouter();
   const { items, language } = useData();
   const [shuffledItems, setShuffledItems] = useState<FoodItem[]>([]);
+
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
 
   // Shuffle logic
   const shuffle = (array: FoodItem[]) => {
@@ -46,12 +51,12 @@ export default function FeedScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Ionicons name="restaurant" size={26} color={AppColors.primary} />
-            <Text style={styles.appTitle}>What to Cook</Text>
+            <ThemedText style={styles.appTitle} type="subtitle">What to Cook</ThemedText>
           </View>
           <Pressable
             style={styles.fab}
@@ -76,8 +81,8 @@ export default function FeedScreen() {
           {items.length === 0 && (
             <View style={styles.emptyState}>
               <Ionicons name="leaf-outline" size={60} color={AppColors.primaryLight} />
-              <Text style={styles.emptyTitle}>{t('noItemsYet', language)}</Text>
-              <Text style={styles.emptySubtitle}>{t('addFirstItem', language)}</Text>
+              <ThemedText style={styles.emptyTitle}>{t('noItemsYet', language)}</ThemedText>
+              <ThemedText style={styles.emptySubtitle}>{t('addFirstItem', language)}</ThemedText>
             </View>
           )}
         </ScrollView>
@@ -89,7 +94,6 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background, // Should match image's off-white
   },
   header: {
     flexDirection: 'row',
@@ -107,7 +111,6 @@ const styles = StyleSheet.create({
   appTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#2D3436', // Slightly darker than standard text
   },
   scrollContent: {
     paddingBottom: 40,
@@ -135,14 +138,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: AppColors.text,
     marginTop: 16,
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: AppColors.textLight,
     marginTop: 6,
     textAlign: 'center',
+    opacity: 0.7,
   },
 });

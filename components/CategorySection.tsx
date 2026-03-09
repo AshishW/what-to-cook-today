@@ -1,11 +1,11 @@
 import { getCategoryTranslation } from '@/constants/i18n';
-import { AppColors } from '@/constants/theme';
 import { useData } from '@/store/data-store';
 import { Category, FoodItem } from '@/types/types';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { FoodCard } from './FoodCard';
+import { ThemedText } from './themed-text';
 
 interface CategorySectionProps {
     category: Category;
@@ -47,15 +47,15 @@ export function CategorySection({ category, items }: CategorySectionProps) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>{translatedCategory}</Text>
+            <ThemedText style={styles.sectionTitle}>{translatedCategory}</ThemedText>
             <FlatList
-                data={data}
+                data={data as any}
                 renderItem={renderItem as any}
                 keyExtractor={(item) => item.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
-                snapToInterval={styles.cardWidthWrapper.width + 12} // CARD_WIDTH + gap
+                snapToInterval={160 + 12} // Approximate width, fixed in FoodCard or exportable
                 decelerationRate="fast"
             />
         </View>
@@ -69,19 +69,13 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 13,
         fontWeight: '900',
-        color: AppColors.textLight,
         letterSpacing: 1.2,
         paddingHorizontal: 20,
         marginBottom: 12,
+        opacity: 0.6,
     },
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 8,
     },
-    // We need this for snapToInterval calculation if we want it to be precise
-    // but we can just use the value from FoodCard if it were exported.
-    // For now I'll just use the padding/gap logic.
-    cardWidthWrapper: {
-        width: 160, // This is just a helper, actual width is in FoodCard
-    }
 });

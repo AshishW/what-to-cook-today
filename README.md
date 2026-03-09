@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# What-to-Cook 🍳
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**What-to-Cook** is a sleek, modern personal food journal and menu planner built with Expo and React Native. Designed for food enthusiasts and home cooks, it allows you to document your culinary creations, categorize them, and quickly find inspiration for your next meal.
 
-## Get started
+![App Icon](assets/images/icon.png)
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- **Personal Food Journal:** Capture your meals with photos and detailed notes.
+- **Swipeable Discovery:** Browse your dishes using a smooth, native-feeling swipe interface.
+- **Smart Filtering:** Categorize meals (Breakfast, Lunch, Dinner, etc.) and filter by ingredients using a dynamic tag system.
+- **Dark Mode Support:** Full high-contrast dark theme that maintains a warm, food-app aesthetic.
+- **Localized:** Available in English, Hindi, Marathi, French, and Spanish.
+- **Local-First & Secure:** All data is stored locally on your device using SQLite.
+- **Backup & Restore:** Seamlessly export and import your entire collection as a portable ZIP archive.
 
-2. Start the app
+## 🛠️ Tech Stack
 
-   ```bash
-   npx expo start
-   ```
+- **Framework:** [Expo](https://expo.dev) SDK 54 / React Native
+- **Navigation:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based)
+- **Database:** `expo-sqlite`
+- **State Management:** React Context API
+- **Animations:** `react-native-reanimated` & `react-native-gesture-handler`
+- **File System:** `expo-file-system/next`
+- **Images:** `expo-image` for high-performance rendering
 
-In the output, you'll find options to open the app in a
+## 🏗️ Architecture Overview
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Database
+The app uses a local SQLite database (`whattocook.db`) with a robust schema to store recipe metadata, JSON-serialized categories, and ingredient tags.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Image Management
+Utilizes the modern `expo-file-system/next` API for efficient image lifecycle management. Images are captured to a cache and "promoted" to permanent storage upon saving, with automatic cleanup of unreferenced files to prevent storage bloat.
 
-## Get a fresh project
+### Portability
+The backup system leverages `jszip` to create a self-contained archive containing both the SQLite data (as JSON) and all referenced image binaries, with automated URI re-mapping on import.
 
-When you're ready, run:
+## 🚀 Getting Started
 
+### 1. Prerequisites
+- [Node.js](https://nodejs.org/) (LTS)
+- [Expo Go](https://expo.dev/go) on your mobile device or an emulator (Android Studio / Xcode)
+
+### 2. Installation
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Running the App
+```bash
+npx expo start
+```
+Scan the QR code with your Expo Go app or press `a` for Android / `i` for iOS to start the bundler.
 
-## Learn more
+## 🎨 Design Principles
+- **Aesthetic:** Warm, earthy tones (Oranges/Reds) to evoke appetite and comfort.
+- **Constraint:** Strictly avoids purple/violet tones to maintain branding consistency.
+- **Typography:** Modern, legible sans-serif fonts with support for multiple scripts.
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+Built with ❤️ for home cooks everywhere.

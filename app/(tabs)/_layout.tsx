@@ -6,17 +6,22 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 export default function TabLayout() {
-  const { language } = useData();
+  const { language, themeMode } = useData();
+
+  const activeColor = themeMode === 'light' ? AppColors.primary : AppColors.primaryLight;
+  const inactiveColor = AppColors.textMuted;
+  const backgroundColor = themeMode === 'light' ? AppColors.tabBar : AppColors.tabBarDark;
+  const borderColor = themeMode === 'light' ? AppColors.border : AppColors.borderDark;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: AppColors.primary,
-        tabBarInactiveTintColor: AppColors.textMuted,
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: AppColors.tabBar,
-          borderTopColor: AppColors.border,
+          backgroundColor: backgroundColor,
+          borderTopColor: borderColor,
           borderTopWidth: 1,
           paddingTop: 6,
           paddingBottom: 8,

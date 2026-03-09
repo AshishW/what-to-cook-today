@@ -1,12 +1,13 @@
 import { TagChip } from '@/components/TagChip';
+import { ThemedText } from '@/components/themed-text';
 import { getCategoryTranslation, t } from '@/constants/i18n';
 import { AppColors } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { useData } from '@/store/data-store';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function ItemDetailScreen() {
     const router = useRouter();
@@ -14,13 +15,18 @@ export default function ItemDetailScreen() {
     const { getItemById, deleteItem, language } = useData();
     const item = getItemById(id);
 
+    const backgroundColor = useThemeColor({}, 'background');
+    const cardColor = useThemeColor({}, 'card');
+    const textColor = useThemeColor({}, 'text');
+    const primary = useThemeColor({}, 'primary');
+
     if (!item) {
         return (
-            <SafeAreaView style={styles.container}>
+            <View style={[styles.container, { backgroundColor }]}>
                 <View style={styles.notFound}>
-                    <Text style={styles.notFoundText}>Item not found</Text>
+                    <ThemedText style={styles.notFoundText}>Item not found</ThemedText>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
@@ -47,10 +53,10 @@ export default function ItemDetailScreen() {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor }]}>
             <ScrollView bounces={false}>
                 {/* Header Image */}
-                <View style={styles.imageContainer}>
+                <View style={[styles.imageContainer, { backgroundColor: primary + '10' }]}>
                     {item.imageUri ? (
                         <Image source={{ uri: item.imageUri }} style={styles.headerImage} />
                     ) : (
@@ -65,29 +71,29 @@ export default function ItemDetailScreen() {
                 </View>
 
                 {/* Content */}
-                <View style={styles.content}>
-                    <Text style={styles.title}>{item.title}</Text>
+                <View style={[styles.content, { backgroundColor }]}>
+                    <ThemedText style={styles.title} type="title">{item.title}</ThemedText>
 
                     <View style={styles.tagsContainer}>
                         {item.categories.map((cat, index) => (
-                            <View key={cat} style={styles.categoryBadge}>
-                                <Text style={styles.categoryText}>
+                            <View key={cat} style={[styles.categoryBadge, { backgroundColor: primary + '15' }]}>
+                                <ThemedText style={[styles.categoryText, { color: primary }]}>
                                     {getCategoryTranslation(cat, language)}
-                                </Text>
+                                </ThemedText>
                             </View>
                         ))}
                     </View>
 
                     {item.description ? (
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>{t('description', language)}</Text>
-                            <Text style={styles.description}>{item.description}</Text>
+                            <ThemedText style={styles.sectionTitle}>{t('description', language)}</ThemedText>
+                            <ThemedText style={styles.description}>{item.description}</ThemedText>
                         </View>
                     ) : null}
 
                     {item.tags.length > 0 && (
                         <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>{t('tags', language)}</Text>
+                            <ThemedText style={styles.sectionTitle}>{t('tags', language)}</ThemedText>
                             <View style={styles.tagsContainer}>
                                 {item.tags.map((tag, index) => (
                                     <TagChip key={tag} label={tag} index={index} />
@@ -98,13 +104,13 @@ export default function ItemDetailScreen() {
 
                     {/* Action Buttons */}
                     <View style={styles.actions}>
-                        <Pressable style={styles.editButton} onPress={handleEdit}>
+                        <Pressable style={[styles.editButton, { backgroundColor: primary }]} onPress={handleEdit}>
                             <Ionicons name="create-outline" size={19} color={AppColors.white} />
-                            <Text style={styles.editButtonText}>{t('edit', language)}</Text>
+                            <ThemedText style={styles.editButtonText}>{t('edit', language)}</ThemedText>
                         </Pressable>
                         <Pressable style={styles.deleteButton} onPress={handleDelete}>
                             <Ionicons name="trash-outline" size={19} color={AppColors.danger} />
-                            <Text style={styles.deleteButtonText}>{t('delete', language)}</Text>
+                            <ThemedText style={styles.deleteButtonText}>{t('delete', language)}</ThemedText>
                         </Pressable>
                     </View>
                 </View>
@@ -116,7 +122,6 @@ export default function ItemDetailScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: AppColors.background,
     },
     notFound: {
         flex: 1,
@@ -125,12 +130,11 @@ const styles = StyleSheet.create({
     },
     notFoundText: {
         fontSize: 16,
-        color: AppColors.textMuted,
+        opacity: 0.6,
     },
     imageContainer: {
         width: '100%',
         height: 280,
-        backgroundColor: AppColors.primary + '10',
         position: 'relative',
     },
     headerImage: {
@@ -164,16 +168,13 @@ const styles = StyleSheet.create({
         marginTop: -20,
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
-        backgroundColor: AppColors.background,
     },
     title: {
         fontSize: 26,
         fontWeight: '800',
-        color: AppColors.text,
         marginBottom: 10,
     },
     categoryBadge: {
-        backgroundColor: AppColors.primary + '15',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 10,
@@ -183,7 +184,6 @@ const styles = StyleSheet.create({
     categoryText: {
         fontSize: 13,
         fontWeight: '600',
-        color: AppColors.primary,
     },
     section: {
         marginBottom: 20,
@@ -191,15 +191,15 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 13,
         fontWeight: '700',
-        color: AppColors.textMuted,
         textTransform: 'uppercase',
         letterSpacing: 1.5,
         marginBottom: 8,
+        opacity: 0.6,
     },
     description: {
         fontSize: 15,
         lineHeight: 24,
-        color: AppColors.textLight,
+        opacity: 0.8,
     },
     tagsContainer: {
         flexDirection: 'row',
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: AppColors.primary,
         paddingVertical: 14,
         borderRadius: 14,
     },
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: AppColors.dangerLight,
+        backgroundColor: AppColors.danger + '15',
         paddingVertical: 14,
         borderRadius: 14,
     },

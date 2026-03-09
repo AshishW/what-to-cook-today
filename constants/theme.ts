@@ -6,26 +6,18 @@ export const AppColors = {
   primaryDark: '#BF360C',
 
   background: '#F5F5F0',
-  backgroundDark: '#1A1A2E',
+  backgroundDark: '#121212',
 
   card: '#FFFFFF',
-  cardDark: '#2D2D44',
+  cardDark: '#1E1E1E',
 
   text: '#2D3436',
   textLight: '#636E72',
   textDark: '#ECEDEE',
   textMuted: '#B2BEC3',
 
-  // Earthy tag colors
-  tagSage: '#8DB580',
-  tagCarrot: '#E67E22',
-  tagCream: '#F5DEB3',
-  tagTeal: '#FFA726',
-  tagTomato: '#E74C3C',
-  tagMustard: '#D4AC0D',
-
   border: '#DFE6E9',
-  borderDark: '#3D3D5C',
+  borderDark: '#2C2C2C',
 
   danger: '#E74C3C',
   dangerLight: '#FADBD8',
@@ -34,9 +26,42 @@ export const AppColors = {
   black: '#000000',
 
   tabBar: '#FAFAF5',
-  tabBarDark: '#16162A',
+  tabBarDark: '#161616',
 
   overlay: 'rgba(0,0,0,0.4)',
+
+  // Earthy tag colors
+  tagSage: '#8DB580',
+  tagCarrot: '#E67E22',
+  tagCream: '#F5DEB3',
+  tagTeal: '#FFA726',
+  tagTomato: '#E74C3C',
+  tagMustard: '#D4AC0D',
+};
+
+export const Colors = {
+  light: {
+    text: AppColors.text,
+    background: AppColors.background,
+    tint: AppColors.primary,
+    icon: AppColors.textLight,
+    tabIconDefault: AppColors.textMuted,
+    tabIconSelected: AppColors.primary,
+    card: AppColors.card,
+    border: AppColors.border,
+    primary: AppColors.primary,
+  },
+  dark: {
+    text: AppColors.textDark,
+    background: AppColors.backgroundDark,
+    tint: AppColors.primaryLight,
+    icon: AppColors.textMuted,
+    tabIconDefault: AppColors.textMuted,
+    tabIconSelected: AppColors.primaryLight,
+    card: AppColors.cardDark,
+    border: AppColors.borderDark,
+    primary: AppColors.primary,
+  },
 };
 
 export const TAG_COLORS = [

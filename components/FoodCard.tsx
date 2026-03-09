@@ -1,8 +1,10 @@
 import { AppColors } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { FoodItem } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ThemedText } from './themed-text';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 56) / 2;
 
@@ -13,15 +15,18 @@ interface FoodCardProps {
 }
 
 export function FoodCard({ item, onPress, isPlaceholder }: FoodCardProps) {
+    const cardColor = useThemeColor({}, 'card');
+    const border = useThemeColor({}, 'border');
+
     if (isPlaceholder) {
         const placeholderItem = item as { category: string };
         return (
-            <Pressable onPress={onPress} style={[styles.card, styles.placeholderCard]}>
+            <Pressable onPress={onPress} style={[styles.card, styles.placeholderCard, { backgroundColor: 'transparent', borderColor: border }]}>
                 <View style={styles.placeholderContent}>
                     <View style={styles.plusCircle}>
                         <Ionicons name="add" size={24} color={AppColors.primary} />
                     </View>
-                    <Text style={styles.placeholderText}>Add {placeholderItem.category}</Text>
+                    <ThemedText style={styles.placeholderText}>Add {placeholderItem.category}</ThemedText>
                 </View>
             </Pressable>
         );
@@ -30,7 +35,7 @@ export function FoodCard({ item, onPress, isPlaceholder }: FoodCardProps) {
     const foodItem = item as FoodItem;
 
     return (
-        <Pressable onPress={onPress} style={styles.card}>
+        <Pressable onPress={onPress} style={[styles.card, { backgroundColor: cardColor }]}>
             <View style={styles.fullCard}>
                 {foodItem.imageUri ? (
                     <Image source={{ uri: foodItem.imageUri }} style={styles.image} />
@@ -40,9 +45,9 @@ export function FoodCard({ item, onPress, isPlaceholder }: FoodCardProps) {
                     </View>
                 )}
                 <View style={styles.textOverlay}>
-                    <Text style={styles.title} numberOfLines={2}>
+                    <ThemedText style={styles.title} numberOfLines={2}>
                         {foodItem.title}
-                    </Text>
+                    </ThemedText>
                 </View>
             </View>
         </Pressable>
@@ -53,7 +58,6 @@ const styles = StyleSheet.create({
     card: {
         width: CARD_WIDTH,
         height: CARD_WIDTH * 1.3,
-        backgroundColor: AppColors.white,
         borderRadius: 20,
         overflow: 'hidden',
         marginRight: 12,
@@ -66,8 +70,6 @@ const styles = StyleSheet.create({
     placeholderCard: {
         borderWidth: 2,
         borderStyle: 'dashed',
-        borderColor: AppColors.border,
-        backgroundColor: 'transparent',
         elevation: 0,
         shadowOpacity: 0,
         justifyContent: 'center',
@@ -89,8 +91,8 @@ const styles = StyleSheet.create({
     placeholderText: {
         fontSize: 12,
         fontWeight: '700',
-        color: AppColors.textLight,
         textAlign: 'center',
+        opacity: 0.7,
     },
     fullCard: {
         flex: 1,
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)', // Semi-transparent black
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
         padding: 12,
         minHeight: '35%',
         justifyContent: 'center',
@@ -120,7 +122,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 14,
         fontWeight: '800',
-        color: AppColors.white,
+        color: '#FFFFFF', // Keep white on dark overlay
         lineHeight: 18,
     },
 });
