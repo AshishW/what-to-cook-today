@@ -65,6 +65,21 @@ type TranslationStrings = {
   importSuccess: string;
   exportSuccess: string;
   error: string;
+  processingData: string;
+
+  // New Features
+  recommendedForYou: string;
+  yourCookingHabits: string;
+  breakfastHabitTitle: string;
+  lunchHabitTitle: string;
+  dinnerHabitTitle: string;
+  saveHabits: string;
+  habitUpdated: string;
+  duplicateTitleError: string;
+  duplicateFoundTitle: string;
+  keepOriginalDetails: string;
+  yesKeepOriginal: string;
+  noCreateNew: string;
 };
 
 const translations: Record<LanguageCode, TranslationStrings> = {
@@ -120,6 +135,19 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     importSuccess: 'Data imported successfully!',
     exportSuccess: 'Data exported successfully!',
     error: 'Error',
+    processingData: 'Processing data...',
+    recommendedForYou: 'Recommended for You',
+    yourCookingHabits: 'Your Cooking Habits',
+    breakfastHabitTitle: 'When do you enjoy Breakfast?',
+    lunchHabitTitle: 'Lunch time usually starts at...',
+    dinnerHabitTitle: 'Dinner is typically served around...',
+    saveHabits: 'Save Habit Times',
+    habitUpdated: 'Habit times updated!',
+    duplicateTitleError: 'An item with this title already exists.',
+    duplicateFoundTitle: 'Meal already exists',
+    keepOriginalDetails: '"{0}" already exists. Would you like to keep original details?',
+    yesKeepOriginal: 'Yes, keep original',
+    noCreateNew: 'No, create new',
   },
   hi: {
     feed: 'फ़ीड',
@@ -172,7 +200,20 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     shareMenuDesc: 'अपना फ़ूड संग्रह साझा करें',
     importSuccess: 'डेटा सफलतापूर्वक आयात किया गया!',
     exportSuccess: 'डेटा सफलतापूर्वक निर्यात किया गया!',
-    error: 'त्रुटि',
+    error: 'एक त्रुटि हुई।',
+    processingData: 'डेटा प्रोसेसिंग हो रहा है...',
+    recommendedForYou: 'आपके लिए अनुशंसित',
+    yourCookingHabits: 'आपकी खाना पकाने की आदतें',
+    breakfastHabitTitle: 'आप नाश्ते का आनंद कब लेते हैं?',
+    lunchHabitTitle: 'दोपहर का भोजन आमतौर पर शुरू होता है...',
+    dinnerHabitTitle: 'रात का खाना आम तौर पर इस समय पर परोसा जाता है...',
+    saveHabits: 'आदत का समय सहेजें',
+    habitUpdated: 'आदत का समय अपडेट किया गया!',
+    duplicateTitleError: 'इस शीर्षक वाला आइटम पहले से मौजूद है।',
+    duplicateFoundTitle: 'व्यंजन पहले से मौजूद है',
+    keepOriginalDetails: '"{0}" पहले से मौजूद है। क्या आप विवरण वही रखना चाहेंगे?',
+    yesKeepOriginal: 'हाँ, वही रखें',
+    noCreateNew: 'नहीं, नया बनाएँ',
   },
   mr: {
     feed: 'फीड',
@@ -225,7 +266,20 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     shareMenuDesc: 'तुमचा खाद्य संग्रह शेअर करा',
     importSuccess: 'डेटा यशस्वीरित्या आयात केला!',
     exportSuccess: 'डेटा यशस्वीरित्या निर्यात केला!',
-    error: 'त्रुटी',
+    error: 'एक त्रुटी आली.',
+    processingData: 'डेटा प्रक्रिया सुरू आहे...',
+    recommendedForYou: 'तुमच्यासाठी शिफारस केलेले',
+    yourCookingHabits: 'तुमच्या स्वयंपाकाच्या सवयी',
+    breakfastHabitTitle: 'तुम्ही नाश्त्याचा आनंद कधी घेता?',
+    lunchHabitTitle: 'दुपारच्या जेवणाची वेळ सहसा सुरू होते...',
+    dinnerHabitTitle: 'रात्रीचे जेवण साधारणपणे या वेळी दिले जाते...',
+    saveHabits: 'सवयीची वेळ जतन करा',
+    habitUpdated: 'सवयीची वेळ अपडेट केली!',
+    duplicateTitleError: 'या शीर्षकाचा आयटम आधीच अस्तित्वात आहे.',
+    duplicateFoundTitle: 'पदार्थ आधीच अस्तित्वात आहे',
+    keepOriginalDetails: '"{0}" आधीच अस्तित्वात आहे. आपण मूळ तपशील ठेवू इच्छिता?',
+    yesKeepOriginal: 'हो, तेच ठेवा',
+    noCreateNew: 'नाही, नवीन तयार करा',
   },
   fr: {
     feed: 'Fil',
@@ -278,7 +332,20 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     shareMenuDesc: 'Partagez votre collection culinaire',
     importSuccess: 'Données importées avec succès !',
     exportSuccess: 'Données exportées avec succès !',
-    error: 'Erreur',
+    error: 'Une erreur est survenue.',
+    processingData: 'Traitement des données...',
+    recommendedForYou: 'Recommandé pour vous',
+    yourCookingHabits: 'Vos habitudes culinaires',
+    breakfastHabitTitle: 'Quand appréciez-vous le petit-déjeuner ?',
+    lunchHabitTitle: 'Le déjeuner commence généralement à...',
+    dinnerHabitTitle: 'Le dîner est généralement servi vers...',
+    saveHabits: 'Enregistrer les horaires',
+    habitUpdated: 'Horaires mis à jour !',
+    duplicateTitleError: 'Un élément avec ce titre existe déjà.',
+    duplicateFoundTitle: 'Le plat existe déjà',
+    keepOriginalDetails: '"{0}" existe déjà. Voulez-vous conserver les détails originaux ?',
+    yesKeepOriginal: 'Oui, conserver',
+    noCreateNew: 'Non, créer un nouveau',
   },
   es: {
     feed: 'Inicio',
@@ -330,8 +397,21 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     shareMenu: 'Compartir menú',
     shareMenuDesc: 'Comparte tu colección de comida',
     importSuccess: '¡Datos importados correctamente!',
-    exportSuccess: '¡Datos exportados correctamente!',
-    error: 'Error',
+    exportSuccess: '¡Datos exportados con éxito!',
+    error: 'Ocurrió un error.',
+    processingData: 'Procesando datos...',
+    recommendedForYou: 'Recomendado para ti',
+    yourCookingHabits: 'Tus hábitos de cocina',
+    breakfastHabitTitle: '¿Cuándo disfrutas del desayuno?',
+    lunchHabitTitle: 'El almuerzo suele empezar a las...',
+    dinnerHabitTitle: 'La cena se sirve normalmente a las...',
+    saveHabits: 'Guardar horarios de hábitos',
+    habitUpdated: '¡Horarios actualizados!',
+    duplicateTitleError: 'Ya existe un elemento con este título.',
+    duplicateFoundTitle: 'El plato ya existe',
+    keepOriginalDetails: '"{0}" ya existe. ¿Le gustaría mantener los detalles originales?',
+    yesKeepOriginal: 'Sí, mantener originales',
+    noCreateNew: 'No, crear nuevo',
   },
 };
 

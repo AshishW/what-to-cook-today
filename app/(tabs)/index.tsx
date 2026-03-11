@@ -6,16 +6,21 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { useData } from '@/store/data-store';
 import { CATEGORIES, FoodItem } from '@/types/types';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function FeedScreen() {
   const router = useRouter();
-  const { items, language } = useData();
+  const { items, language, getRecommendedItems } = useData();
   const [shuffledItems, setShuffledItems] = useState<FoodItem[]>([]);
+  const [recommendedItems, setRecommendedItems] = useState<FoodItem[]>([]);
+
+  useEffect(() => {
+    setRecommendedItems(getRecommendedItems());
+  }, [items, getRecommendedItems]);
 
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -58,18 +63,54 @@ export default function FeedScreen() {
             <Ionicons name="restaurant" size={26} color={AppColors.primary} />
             <ThemedText style={styles.appTitle} type="subtitle">What to Cook</ThemedText>
           </View>
-          <Pressable
-            style={styles.fab}
-            onPress={() => router.push('/item-form')}
-          >
-            <Ionicons name="add" size={28} color={AppColors.white} />
-          </Pressable>
+          <View style={styles.headerRight}>
+            <Pressable
+              style={[styles.iconButton, { marginRight: 12 }]}
+              onPress={() => router.push('/history')}
+            >
+              <Ionicons name="time-outline" size={26} color={AppColors.primary} />
+            </Pressable>
+            <Pressable
+              style={styles.fab}
+              onPress={() => router.push('/item-form')}
+            >
+              <Ionicons name="add" size={28} color={AppColors.white} />
+            </Pressable>
+          </View>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Recommended Section */}
+          {recommendedItems.length > 0 && (
+            <View style={styles.recommendedContainer}>
+              <ThemedText style={styles.sectionTitle} type="subtitle">
+                {t('recommendedForYou', language)}
+              </ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.recommendedList}
+              >
+                {recommendedItems.map(item => (
+                  <Link key={item.id} href={{ pathname: "/item-detail", params: { id: item.id } } as any} asChild>
+                    <Pressable style={styles.recommendedCard}>
+                      <Image
+                        source={item.imageUri ? { uri: item.imageUri } : require('../../assets/images/placeholder-food.png')}
+                        style={styles.recommendedImage}
+                      />
+                      <View style={styles.recommendedOverlay}>
+                        <ThemedText style={styles.recommendedTitle} numberOfLines={1}>{item.title}</ThemedText>
+                      </View>
+                    </Pressable>
+                  </Link>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {CATEGORIES.map((category) => (
             <CategorySection
               key={category}
@@ -115,10 +156,19 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 107, 74, 0.1)', // Subtle primary color background
+  },
   fab: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: AppColors.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -146,5 +196,48 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textAlign: 'center',
     opacity: 0.7,
+  },
+  sectionTitle: {
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  recommendedContainer: {
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  recommendedList: {
+    paddingLeft: 20,
+    paddingRight: 20,
+    gap: 12,
+  },
+  recommendedCard: {
+    width: 160,
+    height: 100,
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+  },
+  recommendedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  recommendedOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  recommendedTitle: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

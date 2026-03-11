@@ -24,7 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function ItemFormScreen() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id?: string }>();
-    const { getItemById, addItem, updateItem, language } = useData();
+    const { getItemById, addItem, updateItem, language, checkTitleExists, logExistingCook } = useData();
 
     const existingItem = id ? getItemById(id) : undefined;
     const isEditing = !!existingItem;
@@ -67,7 +67,7 @@ export default function ItemFormScreen() {
         setTags(tags.filter(t => t !== tag));
     };
 
-    const handleSave = async () => {
+    const handleSave = async (forceNew = false) => {
         if (!title.trim()) {
             Alert.alert(t('error', language), t('titleRequired', language));
             return;
@@ -82,12 +82,45 @@ export default function ItemFormScreen() {
         };
 
         if (isEditing && existingItem) {
-            await updateItem({ ...existingItem, ...itemData });
-        } else {
+            const success = await updateItem({ ...existingItem, ...itemData });
+            if (!success) {
+                Alert.alert(t('error', language), t('duplicateTitleError', language));
+                return;
+            }
+        } else if (!forceNew) {
+            const duplicate = checkTitleExists(title);
+            if (duplicate) {
+                Alert.alert(
+                    t('duplicateFoundTitle', language),
+                    t('keepOriginalDetails', language).replace('{0}', title),
+                    [
+                        {
+                            text: t('yesKeepOriginal', language),
+                            onPress: async () => {
+                                await logExistingCook(duplicate.id);
+                                router.back();
+                            },
+                        },
+                        {
+                            text: t('noCreateNew', language),
+                            onPress: () => handleSave(true),
+                        },
+                        {
+                            text: t('cancel', language),
+                            style: 'cancel',
+                        },
+                    ]
+                );
+                return;
+            }
             await addItem(itemData);
+        } else {
+            await addItem(itemData, { forceNew: true });
         }
 
-        router.back();
+        if (!forceNew || (isEditing && existingItem)) {
+            router.back();
+        }
     };
 
     const screenTitle = isEditing ? t('editItem', language) : t('createItem', language);
@@ -193,7 +226,7 @@ export default function ItemFormScreen() {
 
                     {/* Action Buttons */}
                     <View style={styles.actions}>
-                        <Pressable style={[styles.saveButton, { backgroundColor: primary }]} onPress={handleSave}>
+                        <Pressable style={[styles.saveButton, { backgroundColor: primary }]} onPress={() => handleSave()}>
                             <ThemedText style={styles.saveButtonText}>{t('save', language)}</ThemedText>
                         </Pressable>
                         <Pressable style={[styles.cancelButton, { backgroundColor: border }]} onPress={() => router.back()}>

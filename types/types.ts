@@ -6,6 +6,25 @@ export interface FoodItem {
   tags: string[];
   categories: Category[];
   createdAt: string;
+  cookCount: number;
+}
+
+export interface CookLog {
+  id: string;
+  recipeId: string;
+  recipeTitle: string;
+  cookedAt: string;
+}
+
+export interface TimeRange {
+  start: string; // HH:mm
+  end: string;   // HH:mm
+}
+
+export interface HabitSettings {
+  breakfast: TimeRange;
+  lunch: TimeRange;
+  dinner: TimeRange;
 }
 
 export type Category = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';

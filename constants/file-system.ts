@@ -1,4 +1,4 @@
-import { Directory, File, Paths } from 'expo-file-system/next';
+import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
 
 const IMAGES_DIR = 'images';
