@@ -1,15 +1,29 @@
-import { DataProvider } from '@/store/data-store';
-import { Stack } from 'expo-router';
+import { useData } from '@/store/data-store';
+import { Redirect, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { DataProvider } from '@/store/data-store';
+import { AppColors } from '@/constants/theme';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-export default function RootLayout() {
+function RootNavigator() {
+  const { loading, hasCompletedOnboarding } = useData();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: AppColors.background }}>
+        <ActivityIndicator size="large" color={AppColors.primary} />
+      </View>
+    );
+  }
+
   return (
-    <DataProvider>
+    <>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -27,8 +41,38 @@ export default function RootLayout() {
             animation: 'slide_from_bottom',
           }}
         />
+        <Stack.Screen
+          name="onboarding/welcome"
+          options={{
+            headerShown: false,
+            animation: 'fade',
+          }}
+        />
+        <Stack.Screen
+          name="onboarding/value"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="onboarding/quick-meals"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        />
       </Stack>
+      {!hasCompletedOnboarding && <Redirect href={"/onboarding/welcome" as any} />}
       <StatusBar style="auto" />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <DataProvider>
+      <RootNavigator />
     </DataProvider>
   );
 }

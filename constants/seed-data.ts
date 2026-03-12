@@ -1,67 +1,59 @@
-import { FoodItem } from '@/types/types';
+import { Category } from '@/types/types';
 
-export const SEED_DATA: FoodItem[] = [
+export interface OnboardingMeal {
+  title: string;
+  description: string;
+  tags: string[];
+  categories: Category[];
+}
+
+export const ONBOARDING_MEALS: OnboardingMeal[] = [
   {
-    id: 'seed-1',
-    title: 'Lentils and Vegetable Stew',
-    description: 'A hearty and simple stew with red lentils, carrots, celery, and spinach. Served with brown rice.',
-    imageUri: '',
-    tags: ['lentils', 'carrots', 'spinach', 'vegan', 'easy'],
-    categories: ['Dinner'],
-    createdAt: '2026-03-01T12:00:00.000Z',
-  },
-  {
-    id: 'seed-2',
-    title: 'Mushroom Risotto',
-    description: 'Creamy arborio rice with mixed mushrooms, parmesan, and fresh thyme. A comforting Italian classic.',
-    imageUri: '',
-    tags: ['mushrooms', 'rice', 'parmesan', 'thyme'],
-    categories: ['Dinner'],
-    createdAt: '2026-03-01T11:00:00.000Z',
-  },
-  {
-    id: 'seed-3',
-    title: 'Kale Salad',
-    description: 'Fresh kale with roasted chickpeas, avocado, cherry tomatoes, and lemon tahini dressing.',
-    imageUri: '',
-    tags: ['kale', 'chickpeas', 'avocado', 'vegan'],
-    categories: ['Lunch'],
-    createdAt: '2026-03-01T10:00:00.000Z',
-  },
-  {
-    id: 'seed-4',
-    title: 'Stuffed Potato',
-    description: 'Baked potato loaded with black beans, corn, salsa, and a dollop of sour cream.',
-    imageUri: '',
-    tags: ['potato', 'beans', 'corn', 'salsa'],
-    categories: ['Lunch'],
-    createdAt: '2026-03-01T09:00:00.000Z',
-  },
-  {
-    id: 'seed-5',
-    title: 'Pasta Primavera',
-    description: 'Penne pasta with sautéed seasonal vegetables in a light garlic olive oil sauce.',
-    imageUri: '',
-    tags: ['pasta', 'vegetables', 'garlic', 'olive oil'],
-    categories: ['Dinner'],
-    createdAt: '2026-03-01T08:00:00.000Z',
-  },
-  {
-    id: 'seed-6',
-    title: 'Avocado Toast',
-    description: 'Sourdough toast topped with smashed avocado, cherry tomatoes, microgreens, and everything bagel seasoning.',
-    imageUri: '',
-    tags: ['avocado', 'bread', 'tomatoes', 'quick'],
-    categories: ['Breakfast'],
-    createdAt: '2026-03-01T07:00:00.000Z',
-  },
-  {
-    id: 'seed-7',
-    title: 'Trail Mix Energy Bites',
-    description: 'No-bake energy balls made with oats, peanut butter, honey, chocolate chips, and dried cranberries.',
-    imageUri: '',
-    tags: ['oats', 'peanut butter', 'chocolate', 'snack'],
+    title: 'Maggi',
+    description: 'Quick and easy instant noodles with vegetables and spices. A beloved Indian comfort snack ready in minutes.',
+    tags: ['instant', 'noodles', 'quick', 'spicy'],
     categories: ['Snack'],
-    createdAt: '2026-03-01T06:00:00.000Z',
+  },
+  {
+    title: 'Fried Rice',
+    description: 'Stir-fried rice with mixed vegetables, soy sauce, and scrambled eggs. A perfect way to use leftover rice.',
+    tags: ['rice', 'vegetables', 'quick', 'stir-fry'],
+    categories: ['Lunch', 'Dinner'],
+  },
+  {
+    title: 'Dal Chawal',
+    description: 'Comforting lentil curry served with steamed basmati rice. A staple everyday Indian meal.',
+    tags: ['dal', 'rice', 'comfort', 'lentils', 'homestyle'],
+    categories: ['Lunch', 'Dinner'],
+  },
+  {
+    title: 'Sandwich',
+    description: 'Toasted or fresh bread with vegetables, cheese, and chutneys. Quick, versatile, and satisfying.',
+    tags: ['bread', 'vegetables', 'quick', 'cheese'],
+    categories: ['Breakfast', 'Snack'],
+  },
+  {
+    title: 'Pasta',
+    description: 'Penne or spaghetti in a rich tomato or white sauce with herbs and vegetables.',
+    tags: ['pasta', 'italian', 'quick', 'tomato sauce'],
+    categories: ['Lunch', 'Dinner'],
+  },
+  {
+    title: 'Paneer Curry',
+    description: 'Soft paneer cubes in a spiced onion-tomato gravy. A rich and flavorful Indian classic.',
+    tags: ['paneer', 'curry', 'spicy', 'gravy'],
+    categories: ['Lunch', 'Dinner'],
+  },
+  {
+    title: 'Salad',
+    description: 'Fresh mixed greens with seasonal vegetables, nuts, and a light dressing. Healthy and refreshing.',
+    tags: ['vegetables', 'healthy', 'fresh', 'light'],
+    categories: ['Lunch'],
+  },
+  {
+    title: 'Roti Sabzi',
+    description: 'Freshly made whole wheat flatbread served with a seasonal vegetable dish. The everyday Indian meal.',
+    tags: ['roti', 'vegetables', 'homestyle', 'everyday'],
+    categories: ['Lunch', 'Dinner'],
   },
 ];

@@ -80,6 +80,24 @@ type TranslationStrings = {
   keepOriginalDetails: string;
   yesKeepOriginal: string;
   noCreateNew: string;
+
+  // Onboarding
+  onboardingTitle: string;
+  onboardingSubtitle: string;
+  getStarted: string;
+  restoreBackup: string;
+  onboardingValueHeader: string;
+  onboardingValueSubtitle: string;
+  addMealsTitle: string;
+  trackMealsTitle: string;
+  smartSuggestionsTitle: string;
+  continue: string;
+  whatMealsDoYouCook: string;
+  pickFewToStart: string;
+  addSelectedMeals: string;
+  skip: string;
+  other: string;
+  mealsSelected: string;
 };
 
 const translations: Record<LanguageCode, TranslationStrings> = {
@@ -148,6 +166,22 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     keepOriginalDetails: '"{0}" already exists. Would you like to keep original details?',
     yesKeepOriginal: 'Yes, keep original',
     noCreateNew: 'No, create new',
+    onboardingTitle: 'What should you cook today?',
+    onboardingSubtitle: 'What-to-Cook remembers the meals you make and helps you decide what to cook next.',
+    getStarted: 'Get Started',
+    restoreBackup: 'Restore Backup',
+    onboardingValueHeader: 'How it works',
+    onboardingValueSubtitle: 'Three simple steps to smarter cooking decisions.',
+    addMealsTitle: 'Add meals you cook',
+    trackMealsTitle: 'Track what you\'ve made',
+    smartSuggestionsTitle: 'Get smart suggestions',
+    continue: 'Continue',
+    whatMealsDoYouCook: 'What meals do you cook often?',
+    pickFewToStart: 'Pick a few to get started. You can add more anytime.',
+    addSelectedMeals: 'Add Selected Meals',
+    skip: 'Skip',
+    other: 'Other',
+    mealsSelected: 'selected',
   },
   hi: {
     feed: 'फ़ीड',
@@ -214,6 +248,22 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     keepOriginalDetails: '"{0}" पहले से मौजूद है। क्या आप विवरण वही रखना चाहेंगे?',
     yesKeepOriginal: 'हाँ, वही रखें',
     noCreateNew: 'नहीं, नया बनाएँ',
+    onboardingTitle: 'आज क्या बनाना चाहिए?',
+    onboardingSubtitle: 'What-to-Cook आपके बनाए व्यंजनों को याद रखता है और आगे क्या बनाना है यह तय करने में मदद करता है।',
+    getStarted: 'शुरू करें',
+    restoreBackup: 'बैकअप रीस्टोर करें',
+    onboardingValueHeader: 'यह कैसे काम करता है',
+    onboardingValueSubtitle: 'बेहतर खाना पकाने के फैसलों के लिए तीन सरल कदम।',
+    addMealsTitle: 'अपने व्यंजन जोड़ें',
+    trackMealsTitle: 'ट्रैक करें क्या बनाया',
+    smartSuggestionsTitle: 'स्मार्ट सुझाव पाएं',
+    continue: 'जारी रखें',
+    whatMealsDoYouCook: 'आप अक्सर कौन से व्यंजन बनाते हैं?',
+    pickFewToStart: 'शुरू करने के लिए कुछ चुनें। आप बाद में और जोड़ सकते हैं।',
+    addSelectedMeals: 'चुने हुए व्यंजन जोड़ें',
+    skip: 'छोड़ें',
+    other: 'अन्य',
+    mealsSelected: 'चुने गए',
   },
   mr: {
     feed: 'फीड',
@@ -280,6 +330,22 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     keepOriginalDetails: '"{0}" आधीच अस्तित्वात आहे. आपण मूळ तपशील ठेवू इच्छिता?',
     yesKeepOriginal: 'हो, तेच ठेवा',
     noCreateNew: 'नाही, नवीन तयार करा',
+    onboardingTitle: 'आज काय शिजवायचं?',
+    onboardingSubtitle: 'What-to-Cook तुम्ही बनवलेले पदार्थ लक्षात ठेवतो आणि पुढे काय शिजवायचं ते ठरवायला मदत करतो.',
+    getStarted: 'सुरू करा',
+    restoreBackup: 'बॅकअप रीस्टोर करा',
+    onboardingValueHeader: 'हे कसे काम करते',
+    onboardingValueSubtitle: 'चांगल्या स्वयंपाक निर्णयांसाठी तीन सोपे पाऊल.',
+    addMealsTitle: 'तुमचे पदार्थ जोडा',
+    trackMealsTitle: 'काय बनवलं ते ट्रॅक करा',
+    smartSuggestionsTitle: 'स्मार्ट सूचना मिळवा',
+    continue: 'पुढे जा',
+    whatMealsDoYouCook: 'तुम्ही अनेकदा कोणते पदार्थ बनवता?',
+    pickFewToStart: 'सुरुवातीसाठी काही निवडा. तुम्ही कधीही आणखी जोडू शकता.',
+    addSelectedMeals: 'निवडलेले पदार्थ जोडा',
+    skip: 'वगळा',
+    other: 'इतर',
+    mealsSelected: 'निवडले',
   },
   fr: {
     feed: 'Fil',
@@ -346,6 +412,22 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     keepOriginalDetails: '"{0}" existe déjà. Voulez-vous conserver les détails originaux ?',
     yesKeepOriginal: 'Oui, conserver',
     noCreateNew: 'Non, créer un nouveau',
+    onboardingTitle: 'Que devriez-vous cuisiner aujourd\'hui ?',
+    onboardingSubtitle: 'What-to-Cook mémorise vos repas et vous aide à décider quoi cuisiner ensuite.',
+    getStarted: 'Commencer',
+    restoreBackup: 'Restaurer une sauvegarde',
+    onboardingValueHeader: 'Comment ça marche',
+    onboardingValueSubtitle: 'Trois étapes simples pour de meilleures décisions culinaires.',
+    addMealsTitle: 'Ajoutez vos repas',
+    trackMealsTitle: 'Suivez ce que vous avez préparé',
+    smartSuggestionsTitle: 'Obtenez des suggestions intelligentes',
+    continue: 'Continuer',
+    whatMealsDoYouCook: 'Quels repas cuisinez-vous souvent ?',
+    pickFewToStart: 'Choisissez-en quelques-uns pour commencer. Vous pourrez en ajouter d\'autres.',
+    addSelectedMeals: 'Ajouter les repas sélectionnés',
+    skip: 'Passer',
+    other: 'Autre',
+    mealsSelected: 'sélectionnés',
   },
   es: {
     feed: 'Inicio',
@@ -412,6 +494,22 @@ const translations: Record<LanguageCode, TranslationStrings> = {
     keepOriginalDetails: '"{0}" ya existe. ¿Le gustaría mantener los detalles originales?',
     yesKeepOriginal: 'Sí, mantener originales',
     noCreateNew: 'No, crear nuevo',
+    onboardingTitle: '¿Qué deberías cocinar hoy?',
+    onboardingSubtitle: 'What-to-Cook recuerda tus comidas y te ayuda a decidir qué cocinar a continuación.',
+    getStarted: 'Empezar',
+    restoreBackup: 'Restaurar copia de seguridad',
+    onboardingValueHeader: 'Cómo funciona',
+    onboardingValueSubtitle: 'Tres pasos sencillos para mejores decisiones culinarias.',
+    addMealsTitle: 'Añade tus comidas',
+    trackMealsTitle: 'Registra lo que has cocinado',
+    smartSuggestionsTitle: 'Obtén sugerencias inteligentes',
+    continue: 'Continuar',
+    whatMealsDoYouCook: '¿Qué comidas cocinas a menudo?',
+    pickFewToStart: 'Elige algunas para empezar. Puedes agregar más en cualquier momento.',
+    addSelectedMeals: 'Agregar comidas seleccionadas',
+    skip: 'Omitir',
+    other: 'Otro',
+    mealsSelected: 'seleccionados',
   },
 };
 

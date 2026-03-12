@@ -1,5 +1,5 @@
 import { deleteImageFile, saveImagePermanently } from '@/constants/file-system';
-import { SEED_DATA } from '@/constants/seed-data';
+import { OnboardingMeal } from '@/constants/seed-data';
 import { Category, CookLog, FoodItem, HabitSettings, LanguageCode } from '@/types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
@@ -10,7 +10,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 const LANGUAGE_KEY = '@what_to_cook_language';
 const THEME_KEY = '@what_to_cook_theme';
 const HABIT_KEY = '@what_to_cook_habit_settings';
-const SEEDED_KEY = '@what_to_cook_seeded_sqlite'; // updated key to re-seed
+const ONBOARDING_KEY = '@what_to_cook_onboarding';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -37,6 +37,7 @@ interface DataContextType {
   language: LanguageCode;
   themeMode: ThemeMode;
   habitSettings: HabitSettings;
+  hasCompletedOnboarding: boolean;
   addItem: (item: Omit<FoodItem, 'id' | 'createdAt' | 'cookCount'>, options?: { forceNew?: boolean }) => Promise<void>;
   updateItem: (item: FoodItem) => Promise<boolean>;
   deleteItem: (id: string) => Promise<void>;
@@ -53,6 +54,8 @@ interface DataContextType {
   setHabitSettings: (settings: HabitSettings) => Promise<void>;
   importData: (jsonData: string) => Promise<void>;
   exportData: () => string;
+  completeOnboarding: () => Promise<void>;
+  addOnboardingMeals: (meals: OnboardingMeal[]) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -70,6 +73,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<LanguageCode>('en');
   const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
   const [habitSettings, setHabitSettingsState] = useState<HabitSettings>(DEFAULT_HABITS);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true); // default true to avoid flash
 
   useEffect(() => {
     const setupNotifications = async () => {
@@ -144,46 +148,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [storedLang, storedTheme, storedHabits, seeded] = await Promise.all([
+      const [storedLang, storedTheme, storedHabits, onboardingDone] = await Promise.all([
         AsyncStorage.getItem(LANGUAGE_KEY),
         AsyncStorage.getItem(THEME_KEY),
         AsyncStorage.getItem(HABIT_KEY),
-        AsyncStorage.getItem(SEEDED_KEY),
+        AsyncStorage.getItem(ONBOARDING_KEY),
       ]);
 
       if (storedLang) setLanguageState(storedLang as LanguageCode);
       if (storedTheme) setThemeModeState(storedTheme as ThemeMode);
       if (storedHabits) setHabitSettingsState(JSON.parse(storedHabits));
+      setHasCompletedOnboarding(onboardingDone === 'true');
 
       const { parsedItems: existingItems } = loadFromDB();
 
-      if (existingItems.length === 0 && !seeded) {
-        // First launch — seed with sample data
-        for (const item of SEED_DATA) {
-          const createdAt = item.createdAt || new Date().toISOString();
-          db.runSync(
-            'INSERT INTO recipes (id, title, description, imageUri, tags, category, createdAt, cookCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [item.id, item.title, item.description, item.imageUri, JSON.stringify(item.tags), JSON.stringify(item.categories), createdAt, 1]
-          );
+      // Migration: ensure every recipe has at least one cook log entry
+      const logs = db.getAllSync<any>('SELECT * FROM cook_logs');
+      if (logs.length === 0 && existingItems.length > 0) {
+        existingItems.forEach(item => {
           db.runSync(
             'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
-            [Crypto.randomUUID(), item.id, item.title, createdAt]
+            [Crypto.randomUUID(), item.id, item.title, item.createdAt]
           );
-        }
-        await AsyncStorage.setItem(SEEDED_KEY, 'true');
+        });
         loadFromDB();
-      } else {
-        // Migration: ensure every recipe has at least one cook log entry
-        const logs = db.getAllSync<any>('SELECT * FROM cook_logs');
-        if (logs.length === 0 && existingItems.length > 0) {
-          existingItems.forEach(item => {
-            db.runSync(
-              'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
-              [Crypto.randomUUID(), item.id, item.title, item.createdAt]
-            );
-          });
-          loadFromDB();
-        }
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -428,6 +416,27 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem(HABIT_KEY, JSON.stringify(settings));
   }, []);
 
+  const completeOnboarding = useCallback(async () => {
+    setHasCompletedOnboarding(true);
+    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+  }, []);
+
+  const addOnboardingMeals = useCallback(async (meals: OnboardingMeal[]) => {
+    const now = new Date().toISOString();
+    for (const meal of meals) {
+      const id = Crypto.randomUUID();
+      db.runSync(
+        'INSERT INTO recipes (id, title, description, imageUri, tags, category, createdAt, cookCount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [id, meal.title, meal.description, null, JSON.stringify(meal.tags), JSON.stringify(meal.categories), now, 1]
+      );
+      db.runSync(
+        'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
+        [Crypto.randomUUID(), id, meal.title, now]
+      );
+    }
+    loadFromDB();
+  }, [loadFromDB]);
+
   const importData = useCallback(async (jsonData: string) => {
     const parsed = JSON.parse(jsonData);
     const dataToImport = Array.isArray(parsed) ? parsed : (parsed.items || []);
@@ -469,6 +478,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     language,
     themeMode,
     habitSettings,
+    hasCompletedOnboarding,
     addItem,
     updateItem,
     deleteItem,
@@ -485,7 +495,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setHabitSettings,
     importData,
     exportData,
-  }), [items, cookLogs, loading, language, themeMode, habitSettings, addItem, updateItem, deleteItem, getItemById, getRecommendedItems, searchByTags, searchByText, filterByCategory, getAllTags, setLanguage, setThemeMode, setHabitSettings, importData, exportData]);
+    completeOnboarding,
+    addOnboardingMeals,
+  }), [items, cookLogs, loading, language, themeMode, habitSettings, hasCompletedOnboarding, addItem, updateItem, deleteItem, getItemById, getRecommendedItems, searchByTags, searchByText, filterByCategory, getAllTags, setLanguage, setThemeMode, setHabitSettings, importData, exportData, completeOnboarding, addOnboardingMeals]);
 
   return (
     <DataContext.Provider value={value}>
