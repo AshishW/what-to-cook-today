@@ -1,4 +1,4 @@
-# What to Cook? 🍳
+# What to Cook? 
 
 **What to Cook?** is a sleek, modern personal food journal and menu planner built with Expo and React Native. Designed to solve the "what should I eat?" dilemma, it combines a beautiful visual journal with an intelligent recommendation engine that learns from your cooking habits.
 
