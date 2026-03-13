@@ -312,14 +312,44 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const scoredItems = items.map(item => {
       let score = 0;
 
-      // 1. Matches active category
-      if (activeCategory && item.categories.includes(activeCategory)) score += 50;
+      // 1. "Haven't Cooked in a While" Score
+      const itemLogs = cookLogs
+        .filter(log => log.recipeId === item.id)
+        .sort((a, b) => new Date(b.cookedAt).getTime() - new Date(a.cookedAt).getTime());
 
-      // 2. Not cooked recently (based on cookCount and createdAt)
-      // High cookCount penalizes score
+      const lastCookedAt = itemLogs.length > 0 ? new Date(itemLogs[0].cookedAt) : new Date(item.createdAt);
+      const daysSinceCooked = Math.max(0, Math.floor((now.getTime() - lastCookedAt.getTime()) / (1000 * 60 * 60 * 24)));
+      score += daysSinceCooked * 4;
+
+      // 2. Time-of-Day Habit Score
+      if (activeCategory) {
+        // Base category match bonus
+        const isCorrectCategory = item.categories.includes(activeCategory);
+        if (isCorrectCategory) {
+          score += 50;
+        }
+
+        // Find how many times this meal was cooked within the same time window in the past
+        const habitFrequency = cookLogs.filter(log => {
+          if (log.recipeId !== item.id) return false;
+          const cookDate = new Date(log.cookedAt);
+          const cookTimeStr = `${String(cookDate.getHours()).padStart(2, '0')}:${String(cookDate.getMinutes()).padStart(2, '0')}`;
+
+          let logCategory: Category | null = null;
+          if (cookTimeStr >= habitSettings.breakfast.start && cookTimeStr <= habitSettings.breakfast.end) logCategory = 'Breakfast';
+          else if (cookTimeStr >= habitSettings.lunch.start && cookTimeStr <= habitSettings.lunch.end) logCategory = 'Lunch';
+          else if (cookTimeStr >= habitSettings.dinner.start && cookTimeStr <= habitSettings.dinner.end) logCategory = 'Dinner';
+
+          return logCategory === activeCategory;
+        }).length;
+
+        score += habitFrequency * 25;
+      }
+
+      // 3. Variety / Anti-Repetition Score (Penalty)
       score -= (item.cookCount || 1) * 5;
 
-      // 3. Random factor
+      // 4. Randomness Layer
       score += Math.random() * 20;
 
       return { item, score };
@@ -327,9 +357,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     return scoredItems
       .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
+      .slice(0, 8) // Returning top 8 for a better variety
       .map(entry => entry.item);
-  }, [items, habitSettings]);
+  }, [items, cookLogs, habitSettings]);
 
   const scheduleWeeklyNotification = useCallback(async () => {
     await Notifications.cancelAllScheduledNotificationsAsync();
