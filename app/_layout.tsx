@@ -69,10 +69,14 @@ function RootNavigator() {
   );
 }
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 export default function RootLayout() {
   return (
-    <DataProvider>
-      <RootNavigator />
-    </DataProvider>
+    <SafeAreaProvider>
+      <DataProvider>
+        <RootNavigator />
+      </DataProvider>
+    </SafeAreaProvider>
   );
 }

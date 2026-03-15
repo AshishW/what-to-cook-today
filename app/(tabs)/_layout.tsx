@@ -5,8 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function TabLayout() {
   const { language, themeMode } = useData();
+  const insets = useSafeAreaInsets();
 
   const activeColor = themeMode === 'light' ? AppColors.primary : AppColors.primaryLight;
   const inactiveColor = AppColors.textMuted;
@@ -24,8 +27,8 @@ export default function TabLayout() {
           borderTopColor: borderColor,
           borderTopWidth: 1,
           paddingTop: 6,
-          paddingBottom: 8,
-          height: 60,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+          height: 60 + (insets.bottom > 0 ? insets.bottom - 4 : 0),
         },
         tabBarLabelStyle: {
           fontSize: 11,
