@@ -10,17 +10,22 @@ import React from "react";
 import {
   Alert,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function ItemDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getItemById, deleteItem, language } = useData();
+  const { getItemById, deleteItem, logExistingCook, language } = useData();
   const item = getItemById(id);
+
+  const [isCookModalVisible, setIsCookModalVisible] = React.useState(false);
+  const [showConfetti, setShowConfetti] = React.useState(false);
 
   const backgroundColor = useThemeColor({}, "background");
   const cardColor = useThemeColor({}, "card");
@@ -36,6 +41,16 @@ export default function ItemDetailScreen() {
       </View>
     );
   }
+
+  const handleLogCookConfirm = async () => {
+    setShowConfetti(true);
+    await logExistingCook(item.id);
+
+    setTimeout(() => {
+      setShowConfetti(false);
+      setIsCookModalVisible(false);
+    }, 2500);
+  };
 
   const handleDelete = () => {
     Alert.alert(
@@ -132,6 +147,19 @@ export default function ItemDetailScreen() {
           {/* Action Buttons */}
           <View style={styles.actions}>
             <Pressable
+              style={[styles.logButton, { backgroundColor: primary + "20" }]}
+              onPress={() => setIsCookModalVisible(true)}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={19}
+                color={primary}
+              />
+              <ThemedText style={[styles.logButtonText, { color: primary }]}>
+                Cooked Today
+              </ThemedText>
+            </Pressable>
+            <Pressable
               style={[styles.editButton, { backgroundColor: primary }]}
               onPress={handleEdit}
             >
@@ -157,6 +185,45 @@ export default function ItemDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Confirmation Modal */}
+      <Modal
+        visible={isCookModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !showConfetti && setIsCookModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: cardColor }]}>
+            <Ionicons name="restaurant" size={48} color={primary} style={{ marginBottom: 16 }} />
+            <ThemedText style={styles.modalTitle}>Did you cook this today?</ThemedText>
+            <ThemedText style={styles.modalText}>
+              Logging this meal will update your history and improve recommendations.
+            </ThemedText>
+            <View style={styles.modalActions}>
+              <Pressable
+                style={[styles.modalButton, styles.modalCancelButton]}
+                onPress={() => setIsCookModalVisible(false)}
+                disabled={showConfetti}
+              >
+                <ThemedText style={styles.modalCancelText}>Cancel</ThemedText>
+              </Pressable>
+              <Pressable
+                style={[styles.modalButton, { backgroundColor: primary }]}
+                onPress={handleLogCookConfirm}
+                disabled={showConfetti}
+              >
+                <ThemedText style={styles.modalConfirmText}>Yes, I did!</ThemedText>
+              </Pressable>
+            </View>
+          </View>
+          {showConfetti && (
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <ConfettiCannon count={100} origin={{ x: -10, y: 0 }} />
+            </View>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -249,9 +316,24 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
     marginTop: 10,
     paddingBottom: 40,
+    flexWrap: "wrap",
+  },
+  logButton: {
+    flexBasis: '100%',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginBottom: 8,
+  },
+  logButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
   },
   editButton: {
     flex: 1,
@@ -281,5 +363,61 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     color: AppColors.danger,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    width: '100%',
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 15,
+    opacity: 0.8,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelButton: {
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  modalCancelText: {
+    fontSize: 15,
+    fontWeight: '700',
+    opacity: 0.7,
+  },
+  modalConfirmText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFF',
   },
 });

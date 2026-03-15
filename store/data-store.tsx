@@ -73,7 +73,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<LanguageCode>('en');
   const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
   const [habitSettings, setHabitSettingsState] = useState<HabitSettings>(DEFAULT_HABITS);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true); // default true to avoid flash
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false); // default false to avoid flash for new users
 
   useEffect(() => {
     const setupNotifications = async () => {
@@ -319,14 +319,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
       const lastCookedAt = itemLogs.length > 0 ? new Date(itemLogs[0].cookedAt) : new Date(item.createdAt);
       const daysSinceCooked = Math.max(0, Math.floor((now.getTime() - lastCookedAt.getTime()) / (1000 * 60 * 60 * 24)));
+      
       score += daysSinceCooked * 4;
+      
+      // Strict penalty for very recent items (cooked in the last 3 days)
+      if (daysSinceCooked <= 3 && itemLogs.length > 0) {
+        score -= 50;
+      }
 
       // 2. Time-of-Day Habit Score
       if (activeCategory) {
         // Base category match bonus
         const isCorrectCategory = item.categories.includes(activeCategory);
         if (isCorrectCategory) {
-          score += 50;
+          score += 20; // Reduced from 50
         }
 
         // Find how many times this meal was cooked within the same time window in the past
@@ -343,7 +349,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           return logCategory === activeCategory;
         }).length;
 
-        score += habitFrequency * 25;
+        score += habitFrequency * 5; // Reduced from 25
       }
 
       // 3. Variety / Anti-Repetition Score (Penalty)
@@ -366,23 +372,47 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
     if (items.length === 0) return;
 
-    // Pick a random recommendation window
+    // Pick a random recommendation
     const baseRecs = getRecommendedItems();
     if (baseRecs.length === 0) return;
 
     const randomItem = baseRecs[Math.floor(Math.random() * baseRecs.length)];
 
-    // Schedule for 1 hour into the next dinner window
-    const [hours, mins] = habitSettings.dinner.start.split(':').map(Number);
+    // Determine the next meal window
+    const now = new Date();
+    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    let targetWindowStartTime = habitSettings.dinner.start; // Default fallback
+    let mealName = "Dinner";
+
+    if (currentTimeStr < habitSettings.breakfast.start) {
+        targetWindowStartTime = habitSettings.breakfast.start;
+        mealName = "Breakfast";
+    } else if (currentTimeStr < habitSettings.lunch.start) {
+        targetWindowStartTime = habitSettings.lunch.start;
+        mealName = "Lunch";
+    } else if (currentTimeStr < habitSettings.dinner.start) {
+        targetWindowStartTime = habitSettings.dinner.start;
+        mealName = "Dinner";
+    } else {
+        // Schedule for tomorrow's breakfast
+        targetWindowStartTime = habitSettings.breakfast.start;
+        mealName = "Breakfast";
+    }
+
+    // Schedule for 1 hour into the next window (or at start if window is short)
+    const [hours, mins] = targetWindowStartTime.split(':').map(Number);
     const trigger = new Date();
-    trigger.setHours(hours + 1, mins, 0, 0);
-    if (trigger < new Date()) {
+    trigger.setHours(hours, mins + 30, 0, 0); // Trigger 30 mins into the window
+
+    // If the calculation put it in the past, move to tomorrow
+    if (trigger < now) {
       trigger.setDate(trigger.getDate() + 1);
     }
 
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "What's for dinner tonight?",
+        title: `What's for ${mealName} today?`,
         body: `How about some ${randomItem.title}?`,
         data: { recipeId: randomItem.id },
       },

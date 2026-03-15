@@ -14,13 +14,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function FeedScreen() {
   const router = useRouter();
-  const { items, language, getRecommendedItems } = useData();
+  const { items, language, getRecommendedItems, habitSettings } = useData();
   const [shuffledItems, setShuffledItems] = useState<FoodItem[]>([]);
   const [recommendedItems, setRecommendedItems] = useState<FoodItem[]>([]);
+  const [currentMealWindow, setCurrentMealWindow] = useState<string | null>(null);
 
   useEffect(() => {
     setRecommendedItems(getRecommendedItems());
   }, [items, getRecommendedItems]);
+
+  useEffect(() => {
+    const now = new Date();
+    const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    if (currentTimeStr >= habitSettings.breakfast.start && currentTimeStr <= habitSettings.breakfast.end) {
+      setCurrentMealWindow('Breakfast');
+    } else if (currentTimeStr >= habitSettings.lunch.start && currentTimeStr <= habitSettings.lunch.end) {
+      setCurrentMealWindow('Lunch');
+    } else if (currentTimeStr >= habitSettings.dinner.start && currentTimeStr <= habitSettings.dinner.end) {
+      setCurrentMealWindow('Dinner');
+    } else {
+      setCurrentMealWindow(null);
+    }
+  }, [habitSettings]);
 
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -35,11 +51,24 @@ export default function FeedScreen() {
     return newArray;
   };
 
+  const [showToast, setShowToast] = useState(false);
+
   useEffect(() => {
     if (items.length > 0) {
-      setShuffledItems(shuffle(items));
+      // FIX: By default, keep the items stable (they are already sorted by createdAt descending from the DB)
+      setShuffledItems([...items]);
+    } else {
+      setShuffledItems([]);
     }
   }, [items]);
+
+  const handleManualShuffle = () => {
+    if (items.length > 0) {
+      setShuffledItems(shuffle(items));
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
+  };
 
   const itemsByCategory = useMemo(() => {
     const map: Record<string, FoodItem[]> = {};
@@ -61,7 +90,7 @@ export default function FeedScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Ionicons name="restaurant" size={26} color={AppColors.primary} />
-            <ThemedText style={styles.appTitle} type="subtitle">What to Cook</ThemedText>
+            <ThemedText style={styles.appTitle}>What to Cook</ThemedText>
           </View>
           <View style={styles.headerRight}>
             <Pressable
@@ -79,10 +108,38 @@ export default function FeedScreen() {
           </View>
         </View>
 
+        {/* Custom Toast */}
+        {showToast && (
+          <View style={styles.toastContainer}>
+            <View style={styles.toastBox}>
+              <Ionicons name="checkmark-circle" size={20} color={AppColors.white} style={{ marginRight: 8 }} />
+              <ThemedText style={styles.toastText}>Feed Shuffled!</ThemedText>
+            </View>
+          </View>
+        )}
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {/* Daily Check-in */}
+          {currentMealWindow && (
+            <View style={styles.checkInContainer}>
+              <View style={[styles.checkInCard, { backgroundColor: AppColors.primary + '15' }]}>
+                <View style={styles.checkInTextContainer}>
+                  <ThemedText style={styles.checkInTitle}>Time for {currentMealWindow}?</ThemedText>
+                  <ThemedText style={styles.checkInSubtitle}>Log what you're having to keep track!</ThemedText>
+                </View>
+                <Pressable
+                  style={[styles.checkInButton, { backgroundColor: AppColors.primary }]}
+                  onPress={() => router.push('/search')}
+                >
+                  <ThemedText style={styles.checkInButtonText}>Log Meal</ThemedText>
+                </Pressable>
+              </View>
+            </View>
+          )}
+
           {/* Recommended Section */}
           {recommendedItems.length > 0 && (
             <View style={styles.recommendedContainer}>
@@ -108,6 +165,15 @@ export default function FeedScreen() {
                   </Link>
                 ))}
               </ScrollView>
+              <View style={styles.shuffleChipContainer}>
+                <Pressable 
+                  style={styles.shuffleChip}
+                  onPress={handleManualShuffle}
+                >
+                  <Ionicons name="shuffle-outline" size={16} color={AppColors.primary} style={{ marginRight: 6 }} />
+                  <ThemedText style={styles.shuffleChipText}>Shuffle Feed</ThemedText>
+                </Pressable>
+              </View>
             </View>
           )}
 
@@ -153,8 +219,60 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
   },
+  shuffleButton: {
+    padding: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 107, 74, 0.1)',
+  },
+  shuffleChipContainer: {
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    marginTop: 16,
+  },
+  shuffleChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 107, 74, 0.12)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 74, 0.2)',
+  },
+  shuffleChipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: AppColors.primary,
+  },
   scrollContent: {
     paddingBottom: 40,
+  },
+  toastContainer: {
+    position: 'absolute',
+    top: 80,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 100,
+    elevation: 10,
+  },
+  toastBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#333',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  toastText: {
+    color: '#FFF',
+    fontWeight: '600',
+    fontSize: 14,
   },
   headerRight: {
     flexDirection: 'row',
@@ -201,6 +319,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 12,
     fontSize: 18,
+    fontWeight: '700',
+  },
+  checkInContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  checkInCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 16,
+  },
+  checkInTextContainer: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  checkInTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  checkInSubtitle: {
+    fontSize: 13,
+    opacity: 0.8,
+  },
+  checkInButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  checkInButtonText: {
+    color: '#FFF',
+    fontSize: 14,
     fontWeight: '700',
   },
   recommendedContainer: {
