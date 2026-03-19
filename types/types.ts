@@ -14,6 +14,7 @@ export interface CookLog {
   recipeId: string;
   recipeTitle: string;
   cookedAt: string;
+  mealCategory?: Category;
 }
 
 export interface TimeRange {

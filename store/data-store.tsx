@@ -38,12 +38,12 @@ interface DataContextType {
   themeMode: ThemeMode;
   habitSettings: HabitSettings;
   hasCompletedOnboarding: boolean;
-  addItem: (item: Omit<FoodItem, 'id' | 'createdAt' | 'cookCount'>, options?: { forceNew?: boolean }) => Promise<void>;
+  addItem: (item: Omit<FoodItem, 'id' | 'createdAt' | 'cookCount'>, options?: { forceNew?: boolean; cookedAt?: string; mealCategory?: Category }) => Promise<void>;
   updateItem: (item: FoodItem) => Promise<boolean>;
   deleteItem: (id: string) => Promise<void>;
   getItemById: (id: string) => FoodItem | undefined;
   checkTitleExists: (title: string) => FoodItem | undefined;
-  logExistingCook: (id: string) => Promise<void>;
+  logExistingCook: (id: string, options?: { cookedAt?: string; mealCategory?: Category }) => Promise<void>;
   getRecommendedItems: () => FoodItem[];
   searchByTags: (tags: string[]) => FoodItem[];
   searchByText: (query: string) => FoodItem[];
@@ -106,13 +106,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         id TEXT PRIMARY KEY,
         recipeId TEXT,
         recipeTitle TEXT,
-        cookedAt TEXT
+        cookedAt TEXT,
+        mealCategory TEXT
       );
     `);
 
     // Migration: Check if cookCount exists, if not add it
     try {
       db.execSync("ALTER TABLE recipes ADD COLUMN cookCount INTEGER DEFAULT 1;");
+    } catch (e) {
+      // Column already exists, ignore
+    }
+
+    try {
+      db.execSync("ALTER TABLE cook_logs ADD COLUMN mealCategory TEXT;");
     } catch (e) {
       // Column already exists, ignore
     }
@@ -180,8 +187,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addItem = useCallback(async (item: Omit<FoodItem, 'id' | 'createdAt' | 'cookCount'>, options?: { forceNew?: boolean }) => {
-    const createdAt = new Date().toISOString();
+  const addItem = useCallback(async (item: Omit<FoodItem, 'id' | 'createdAt' | 'cookCount'>, options?: { forceNew?: boolean; cookedAt?: string; mealCategory?: Category }) => {
+    const createdAt = options?.cookedAt || new Date().toISOString();
     const normalizedTitle = normalizeTitle(item.title);
 
     // Save image permanently if it's a local file
@@ -204,8 +211,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           [newCookCount, item.description || '', permanentUri || existing.imageUri, JSON.stringify(item.tags), JSON.stringify(item.categories), createdAt, existing.id]
         );
         db.runSync(
-          'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
-          [Crypto.randomUUID(), existing.id, item.title.trim(), createdAt]
+          'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt, mealCategory) VALUES (?, ?, ?, ?, ?)',
+          [Crypto.randomUUID(), existing.id, item.title.trim(), createdAt, options?.mealCategory || null]
         );
         loadFromDB();
         return;
@@ -219,8 +226,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       [id, item.title.trim(), item.description, permanentUri, JSON.stringify(item.tags), JSON.stringify(item.categories), createdAt, 1]
     );
     db.runSync(
-      'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
-      [Crypto.randomUUID(), id, item.title.trim(), createdAt]
+      'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt, mealCategory) VALUES (?, ?, ?, ?, ?)',
+      [Crypto.randomUUID(), id, item.title.trim(), createdAt, options?.mealCategory || null]
     );
     loadFromDB();
   }, [loadFromDB]);
@@ -230,11 +237,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     return items.find(item => normalizeTitle(item.title) === normalizedTarget);
   }, [items]);
 
-  const logExistingCook = useCallback(async (id: string) => {
+  const logExistingCook = useCallback(async (id: string, options?: { cookedAt?: string; mealCategory?: Category }) => {
     const existing = items.find(i => i.id === id);
     if (!existing) return;
 
-    const createdAt = new Date().toISOString();
+    const createdAt = options?.cookedAt || new Date().toISOString();
     const newCookCount = (existing.cookCount || 1) + 1;
 
     db.runSync(
@@ -242,8 +249,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       [newCookCount, createdAt, existing.id]
     );
     db.runSync(
-      'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt) VALUES (?, ?, ?, ?)',
-      [Crypto.randomUUID(), existing.id, existing.title, createdAt]
+      'INSERT INTO cook_logs (id, recipeId, recipeTitle, cookedAt, mealCategory) VALUES (?, ?, ?, ?, ?)',
+      [Crypto.randomUUID(), existing.id, existing.title, createdAt, options?.mealCategory || null]
     );
     loadFromDB();
   }, [items, loadFromDB]);
@@ -338,6 +345,9 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         // Find how many times this meal was cooked within the same time window in the past
         const habitFrequency = cookLogs.filter(log => {
           if (log.recipeId !== item.id) return false;
+          
+          if (log.mealCategory === activeCategory) return true;
+
           const cookDate = new Date(log.cookedAt);
           const cookTimeStr = `${String(cookDate.getHours()).padStart(2, '0')}:${String(cookDate.getMinutes()).padStart(2, '0')}`;
 

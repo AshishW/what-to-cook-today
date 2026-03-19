@@ -37,6 +37,10 @@ export default function ItemFormScreen() {
     const [categories, setCategories] = useState<Category[]>(
         existingItem?.categories || [id ? 'Dinner' : (useLocalSearchParams().category as Category) || 'Dinner']
     );
+    const [time, setTime] = useState(() => {
+        const now = new Date();
+        return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    });
 
     const backgroundColor = useThemeColor({}, 'background');
     const cardColor = useThemeColor({}, 'card');
@@ -81,6 +85,12 @@ export default function ItemFormScreen() {
             categories,
         };
 
+        const [hours, minutes] = time.split(':').map(Number);
+        const logDate = new Date();
+        logDate.setHours(hours, minutes, 0, 0);
+        const cookedAt = logDate.toISOString();
+        const mealCategory = categories[0] || null;
+
         if (isEditing && existingItem) {
             const success = await updateItem({ ...existingItem, ...itemData });
             if (!success) {
@@ -97,7 +107,7 @@ export default function ItemFormScreen() {
                         {
                             text: t('yesKeepOriginal', language),
                             onPress: async () => {
-                                await logExistingCook(duplicate.id);
+                                await logExistingCook(duplicate.id, { cookedAt, mealCategory });
                                 router.back();
                             },
                         },
@@ -113,9 +123,9 @@ export default function ItemFormScreen() {
                 );
                 return;
             }
-            await addItem(itemData);
+            await addItem(itemData, { cookedAt, mealCategory });
         } else {
-            await addItem(itemData, { forceNew: true });
+            await addItem(itemData, { forceNew: true, cookedAt, mealCategory });
         }
 
         if (!forceNew || (isEditing && existingItem)) {
@@ -198,6 +208,12 @@ export default function ItemFormScreen() {
                         })}
                     </View>
 
+                    {/* Time Eaten */}
+                    <ThemedText style={styles.label}>Time Eaten</ThemedText>
+                    <View style={styles.timePickerContainer}>
+                        <TimeSelector value={time} onChange={setTime} />
+                    </View>
+
                     {/* Tags */}
                     <ThemedText style={styles.label}>{t('tags', language)}</ThemedText>
                     <View style={styles.tagInputRow}>
@@ -236,6 +252,44 @@ export default function ItemFormScreen() {
                 </ScrollView>
             </SafeAreaView>
         </KeyboardAvoidingView>
+    );
+}
+
+function TimeSelector({ value, onChange }: { value: string, onChange: (val: string) => void }) {
+    const [hours, minutes] = value.split(':').map(Number);
+
+    const updateHours = (delta: number) => {
+        const next = (hours + delta + 24) % 24;
+        onChange(`${String(next).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`);
+    };
+
+    const updateMinutes = (delta: number) => {
+        const next = (minutes + delta + 60) % 60;
+        onChange(`${String(hours).padStart(2, '0')}:${String(next).padStart(2, '0')}`);
+    };
+
+    return (
+        <View style={styles.timeSelector}>
+            <View style={styles.timePart}>
+                <Pressable onPress={() => updateHours(1)} style={styles.arrowButton}>
+                    <Ionicons name="chevron-up" size={24} color={AppColors.primary} />
+                </Pressable>
+                <ThemedText style={styles.timeValue}>{String(hours).padStart(2, '0')}</ThemedText>
+                <Pressable onPress={() => updateHours(-1)} style={styles.arrowButton}>
+                    <Ionicons name="chevron-down" size={24} color={AppColors.primary} />
+                </Pressable>
+            </View>
+            <ThemedText style={styles.timeColon}>:</ThemedText>
+            <View style={styles.timePart}>
+                <Pressable onPress={() => updateMinutes(5)} style={styles.arrowButton}>
+                    <Ionicons name="chevron-up" size={24} color={AppColors.primary} />
+                </Pressable>
+                <ThemedText style={styles.timeValue}>{String(minutes).padStart(2, '0')}</ThemedText>
+                <Pressable onPress={() => updateMinutes(-5)} style={styles.arrowButton}>
+                    <Ionicons name="chevron-down" size={24} color={AppColors.primary} />
+                </Pressable>
+            </View>
+        </View>
     );
 }
 
@@ -361,5 +415,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '700',
         opacity: 0.8,
+    },
+    timePickerContainer: {
+        alignItems: 'flex-start',
+        marginBottom: 8,
+    },
+    timeSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: 12,
+        padding: 8,
+    },
+    timePart: {
+        alignItems: 'center',
+    },
+    timeValue: {
+        fontSize: 24,
+        fontWeight: '700',
+        width: 40,
+        textAlign: 'center',
+        marginVertical: 4,
+    },
+    timeColon: {
+        fontSize: 24,
+        fontWeight: '700',
+        marginHorizontal: 4,
+    },
+    arrowButton: {
+        padding: 4,
     },
 });
